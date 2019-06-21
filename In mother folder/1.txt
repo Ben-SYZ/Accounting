@@ -1,0 +1,249 @@
+
+
+    Dim read(1000) As String
+    Dim tblnm As String, DT As Date
+    Private Type Transaction
+    Date As String
+    Abstract As String
+    Ledger As String
+    Detail As String
+    Debit As Double
+    credit As Double
+    CD As String
+    num As Integer
+    Print As Boolean
+    End Type
+'文本框调动程序
+Public Function chge(piny As String, i As Integer) As String 'i 哪个文本框
+
+
+
+    Dim connsear As New ADODB.Connection
+    Dim rssear As New ADODB.Recordset
+    connsear.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+
+    'connsear.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    connsear.Open
+    'rs2 查询表是否存在
+    rssear.CursorType = adOpenStatic
+    rssear.Open "select Item from Items where Pinyin ='" & piny & "'", connsear 'https://bbs.csdn.net/topics/39386
+    If rssear.RecordCount = 0 Then
+        confirm = MsgBox("未找到此科目，是否需要新建", vbYesNo, "确认新建")
+        If confirm = vbYes Then
+            Form2.Show
+        Else
+            'Me.Controls("Text" & i).SelStart = 0'return = 0
+            Me.Controls("Text" & i).SetFocus
+        End If
+    Else
+        chge = rssear.Fields("Item").Value
+    End If
+    
+End Function
+   
+
+Private Sub Combo1_lostfocus()
+    tblnm = LTrim(Combo1.Text) + Text1.Text & Label2.Caption & Text2.Text & Label3.Caption & Text3.Text & Label4.Caption
+
+    'Text2.SetFocus
+    'Me.Controls("Text" & ).SetFocus
+End Sub
+
+Private Sub Command1_Click() '批量
+    Form2.Show
+End Sub
+
+
+Private Sub command2_click() 'print
+    Form3.Show
+End Sub
+
+Private Sub Command4_Click() 'ado
+    
+    'tblnm = LTrim(Combo1.Text) + LTrim(Str(Year(Now - Day(Now)) & Month(Now - Day(Now))))
+    If tblnm = "" Then
+        MsgBox ("请选择单位！")
+    Else
+        
+        Dim sum_debit As Single, sum_credit As Single
+        Dim k As Integer
+        sum_debit = 0
+        sum_credit = 0
+        For k = 7 To 32 Step 5 'debit
+            sum_debit = sum_debit + Val(Me.Controls("Text" & (k)).Text)
+        Next k
+        
+        For k = 8 To 33 Step 5 'credit
+            sum_credit = sum_credit + Val(Me.Controls("Text" & (k)).Text)
+        Next k
+        
+        If sum_credit <> sum_debit Then
+            MsgBox "借贷不等,请检查！"
+        
+        Else
+        
+            Field = " (ID int IDENTITY(1,1) ,DT datetime,Abstract VarChar(255), Ledger VarChar(255), Detail VarChar(255), Debit decimal(9, 2), Credit decimal(9, 2), CD varChar(255),Num decimal(9,0),PrintOrNot Bit)" 'https://blog.csdn.net/hfly2005/article/details/388809
+                
+            Dim conn As New ADODB.Connection
+            Dim rs As New ADODB.Recordset, rs2 As New ADODB.Recordset
+            Dim num As Integer '总号
+            conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+            'conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+            conn.Open
+            'rs2 查询表是否存在
+            rs2.CursorType = adOpenStatic
+            rs2.Open "select * from list where Tablelist='" & tblnm & "'", conn 'https://bbs.csdn.net/topics/39386
+            If Not rs2.RecordCount = 1 Then
+                conn.Execute "create table " & tblnm & Field
+                conn.Execute "INSERT INTO list (Tablelist) VALUES ('" & tblnm & "')"
+                'conn.Execute "INSERT INTO " & tblnm & "(Abstract,Credit) VALUES ('Gates','55555.12')"
+                'MsgBox "创建表成功"
+            End If
+            'rs 确定总号
+            rs.CursorType = adOpenStatic
+            rs.Open "select * from " & tblnm & " order by Num asc", conn
+            If rs.RecordCount = 0 Then
+                num = 1
+            Else
+                rs.MoveLast
+                'Print (rs.Fields("Num").Value)
+                num = rs.Fields("Num").Value + 1
+            End If
+            rs.Close
+            
+            Print num
+            '
+            Dim writein(6) As Transaction
+            
+            Dim i As Integer '(texti)
+            Dim j As Integer, jmax As Integer 'writein(j)
+            j = 0
+            For i = 7 To 32 Step 5
+            
+                If (Me.Controls("Text" & i).Text) <> "" Then
+                    j = j + 1
+                    writein(j).Date = DT
+                    writein(j).Abstract = Me.Controls("Text" & (i - 3)).Text 'http://tieba.baidu.com/p/868677926?traceid=
+                    writein(j).Ledger = Me.Controls("Text" & (i - 2)).Text
+                    writein(j).Detail = Me.Controls("Text" & (i - 1)).Text
+                    writein(j).Debit = Val(Me.Controls("Text" & (i)).Text)
+                    writein(j).CD = "Debit"
+                    writein(j).num = num
+                End If
+            Next i
+            jmax = j
+            Print (Date)
+            For j = 1 To jmax
+            conn.Execute "insert into " & tblnm & " (DT,Abstract,Ledger,Detail,Debit,Credit,CD,Num) VALUES ('" & writein(j).Date & "','" & writein(j).Abstract & "','" & writein(j).Ledger & "','" & writein(j).Detail & "','" & writein(j).Debit & "','" & writein(j).credit & "','" & writein(j).CD & "','" & writein(j).num & "')"
+            Next j
+            Erase writein
+            j = 0
+            For i = 8 To 33 Step 5
+            
+                If (Me.Controls("Text" & i).Text) <> "" Then
+                    j = j + 1
+                    writein(j).Date = DT
+                    writein(j).Abstract = Me.Controls("Text" & (i - 4)).Text
+                    writein(j).Ledger = Me.Controls("Text" & (i - 3)).Text
+                    writein(j).Detail = Me.Controls("Text" & (i - 2)).Text
+                    writein(j).credit = Val(Me.Controls("Text" & (i)).Text)
+                    writein(j).CD = "Credit"
+                    writein(j).num = num
+                End If
+            Next i
+            jmax = j
+            For j = 1 To jmax
+            conn.Execute "insert into " & tblnm & " (DT,Abstract,Ledger,Detail,Debit,Credit,CD,Num) VALUES ('" & writein(j).Date & "','" & writein(j).Abstract & "','" & writein(j).Ledger & "','" & writein(j).Detail & "','" & writein(j).Debit & "','" & writein(j).credit & "','" & writein(j).CD & "','" & writein(j).num & "')"
+            Next j
+            Erase writein
+            For k = 4 To 33
+                Me.Controls("Text" & k).Text = ""
+            Next k
+            rs2.Close
+            conn.Close
+        End If
+    End If
+End Sub
+
+
+
+Private Sub Command5_Click()
+Print tblnm
+End Sub
+
+Private Sub Command6_Click() 'drop table
+    
+    Dim conn As New ADODB.Connection
+    Dim rs2 As New ADODB.Recordset
+    
+    conn.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'conn.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    conn.Open
+    rs2.CursorType = adOpenStatic
+    rs2.Open "select * from list where Tablelist='" & tblnm & "'", conn 'https://bbs.csdn.net/topics/39386
+    If rs2.RecordCount = 1 Then
+        conn.Execute "drop table " & tblnm
+        conn.Execute "delete from list where Tablelist='" & tblnm & "'"
+        'MsgBox "删除表成功"
+    End If
+    rs2.Close
+    conn.Close
+End Sub
+
+
+Private Sub Command3_Click()
+    
+    For i = 0 To i_max
+       Print (read(i))
+       List1.AddItem (read(i))
+    Next i
+End Sub
+
+
+
+Private Sub Form_Load()
+    Text1.Text = Year(Now - Day(Now))
+    Text2.Text = Month(Now - Day(Now))
+    Text3.Text = Day(Now - Day(Now))
+    Combo1.AddItem ("亚华")
+    Combo1.AddItem ("广屹")
+    Combo1.AddItem ("硬质合金")
+    Combo1.AddItem ("杭屹")
+    'tblnm = Combo1.Text + Str(Year(Now - Day(Now)) & Month(Now - Day(Now)))
+    DT = Text1.Text & "/" & Text2.Text & "/" & Text3.Text
+    'i = 0
+    'Adodc1.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'Adodc1.RecordSource = "select * from Items"
+    'Adodc1.Refresh
+    'Adodc1.Recordset.MoveFirst
+    'While Not Adodc1.Recordset.EOF
+    '    read(i) = Adodc1.Recordset.Fields("Item").Value
+    '    'Combo1.AddItem (Adodc1.Recordset.Fields("Item").Value)
+    '    i = i + 1
+    '    Adodc1.Recordset.MoveNext
+    'Wend
+    'i_max = i - 1'在cmd3中会用
+    
+  
+
+End Sub
+
+Private Sub Text5_lostfocus()
+    If Not Text5.Text = "" Then Text5.Text = chge(Text5.Text, 5)
+End Sub
+Private Sub Text10_lostfocus()
+    If Not Text10.Text = "" Then Text10.Text = chge(Text10.Text, 10)
+End Sub
+Private Sub Text15_lostfocus()
+    If Not Text15.Text = "" Then Text15.Text = chge(Text15.Text, 15)
+End Sub
+Private Sub Text20_lostfocus()
+    If Not Text20.Text = "" Then Text20.Text = chge(Text20.Text, 20)
+End Sub
+Private Sub Text25_lostfocus()
+    If Not Text25.Text = "" Then Text25.Text = chge(Text25.Text, 25)
+End Sub
+Private Sub Text30_lostfocus()
+    If Not Text30.Text = "" Then Text30.Text = chge(Text30.Text, 30)
+End Sub
+

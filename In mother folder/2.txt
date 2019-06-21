@@ -1,0 +1,165 @@
+Private Type Item
+    Name As String
+    piny As String
+End Type
+
+'Dim items(1000) As Item
+Dim i As Integer, j As Integer, k As Integer
+Private Function selwrd(lon As String) As String()
+
+    Dim tem(1000) As String
+    For i = 0 To 1000
+    tem(i) = ""
+    Next i
+    j = 0
+    
+    Dim flag As Boolean
+    
+    
+    For i = 1 To Len(lon)
+        flag = False
+        k = i
+        
+        Do While (Mid(lon, k, 1) <> Chr(10)) And (Mid(lon, k, 1) <> Chr(13)) And (k <= Len(lon))
+            k = k + 1
+            'Print (k)
+            flag = True
+        Loop 'k points to \n
+        
+        If flag = True Then
+        tem(j) = Mid(lon, i, k - i)
+        'Print (tem(j))
+        j = j + 1
+        End If
+        
+        i = k + 1 'because of next i
+    
+    Next i
+    j_max = j - 1
+    
+    
+    'print array tem()
+    For j = 0 To j_max
+        Print ("::" & tem(j))
+    Next j
+
+    selwrd = tem
+
+End Function
+
+Private Function Inpt(items() As String, py() As String, num As Integer)
+
+
+confirm = MsgBox("确定要增加这" & num + 1 & "条记录吗？", vbYesNo, "确认增加")
+If confirm = vbYes Then
+    
+    Dim adoin As New ADODB.Connection
+    adoin.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'adoin.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    adoin.Open
+    For i = 0 To num
+        adoin.Execute "insert into Items (Item,Pinyin) VALUES ('" & items(i) & "','" & py(i) & "')"
+    Next i
+    adoin.Close
+    'Adodc1.Refresh
+    'For j = 0 To num '输入进数据库
+    '    Print (items(j))
+    '    Adodc1.Recordset.AddNew
+    '    Adodc1.Recordset.Fields("Item") = items(j)
+    '    Adodc1.Recordset.Update
+    'Next j
+    
+    MsgBox "记录增加成功！", , "Message"
+Else
+    MsgBox "记录未增加！", , "Message"
+End If
+
+
+End Function
+Private Sub Command1_Click() 'one word
+
+
+
+j = 0
+For i = 1 To Len(Text1.Text)
+
+'Print ("::::::" & Mid(Text1.Text, i, 1))
+'If (Mid(Text1.Text, i, 1) <> Chr(10)) And (Mid(Text1.Text, i, 1) <> Chr(13)) Then
+items(j) = Mid(Text1.Text, i, 1)
+Print (":::::" & items(j))
+
+'j = j + 1
+'End If
+
+
+Next i
+End Sub
+
+Private Sub command2_click() 'add names
+
+Dim itemsnm() As String
+Dim itemspy() As String
+'Text2.Text = Split(Text1.Text)
+
+'itemsnm = CopyMemory(selwrd(Text1.Text))
+itemsnm() = Split(Text1.Text, vbCrLf)
+
+itemspy() = Split(Text2.Text, vbCrLf)
+Dim lennm As Integer, lenpy As Integer
+lennm = UBound(itemsnm)
+lenpy = UBound(itemspy)
+
+'For i = 0 To lennm 'print for comfirming
+'    Me.CurrentY = 300 * i
+'    Print (itemsnm(i))
+'Next i
+
+'For i = 0 To lenpy 'print for comfirming
+'    Me.CurrentX = 800
+'    Me.CurrentY = 300 * i
+'    print (itemspy(i))
+'Next i
+'selwrd (Text2.Text)
+'Print selwrd
+If lennm <> lenpy Then
+    MsgBox "科目数和拼音数不符（最后不要加回车），请检查！", , "Message"
+Else
+    
+    For i = 0 To lennm 'print for comfirming
+        Me.CurrentY = 300 * i
+        Print (itemsnm(i))
+        Me.CurrentX = 800
+        Me.CurrentY = 300 * i
+        Print (itemspy(i))
+    Next i
+    Call Inpt(itemsnm(), itemspy(), lennm)
+End If
+
+'For i = 0 To jmax
+'Print (itemsnm(i))
+
+'Next i
+End Sub
+
+Private Sub Command3_Click()
+Adodc1.Refresh
+Dim j As Integer
+
+For j = 0 To j_max
+Print (items(j))
+Adodc1.Recordset.AddNew
+Adodc1.Recordset.Fields("Item") = items(j)
+Adodc1.Recordset.Update
+Next j
+
+End Sub
+
+Private Sub Command4_Click()
+'Form2.Hide
+Unload (Form2)
+End Sub
+
+Private Sub Form_Load()
+Adodc1.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+Adodc1.RecordSource = "select * from Items"
+End Sub

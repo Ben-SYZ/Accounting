@@ -1,0 +1,603 @@
+    Private Type Transaction
+        Date As String
+        Abstract As String
+        Ledger As String
+        Detail As String
+        Debit As Double
+        credit As Double
+        CD As String
+        num As Integer
+'        PrintOrNot As Boolean
+    End Type
+    
+    Dim tblnm As String
+    
+    Dim data(1000) As Transaction
+    
+    
+    Dim i_prt As Integer
+    'Dim i_prt_words As Integer
+    Dim num As Integer
+    
+    Dim nextpage As Single
+
+    Dim a(30) As Single, b(30) As Single
+    Dim c(30) As Single, d(30) As Single
+    Dim e(5) As Single, f(5) As Single
+    Dim g(5) As Single, h(5) As Single
+
+
+Private Function location(y)
+    Erase a, b, c, d, e, f, g, h
+    
+    Dim i As Single
+      
+    
+    a(0) = 2.4 '2.5
+    a(1) = a(0) + 3.8 '6.3
+    a(2) = a(1) + 2.9 '9.2
+    a(3) = a(2) + 3 '12.2
+    For i = 4 To 12
+        a(i) = a(i - 1) + 0.322222
+    Next i
+    'Print ("a12=" & a(12)) '15.1
+    a(13) = a(12) + 0.68 '15.78
+    
+    For i = 14 To 22
+        a(i) = a(i - 1) + 0.322222
+    Next i
+    'Print ("a22=" & a(22)) '18.6799
+    a(23) = a(22) + 0.68 '看a13
+    
+    
+    b(0) = y '3.4
+    b(1) = b(0) + 0.5  '3.9
+    b(2) = b(1) + 0.5 '4.4
+    For i = 3 To 9
+        b(i) = b(i - 1) + 0.65714
+    Next i
+    
+    'Print ("b9=" & b(9)) '8.999979
+    b(10) = b(9) + 4.200021 '13.2
+    b(11) = b(10) + 0.5 '13.7
+    b(12) = b(11) + 0.5 '14.2
+    For i = 13 To 19
+        b(i) = b(i - 1) + 0.65714
+    Next i
+    
+    'Print ("b19=" & a(19)) '17.71333
+    b(20) = b(19) + 5.28667 '23
+    b(21) = b(20) + 0.5 '23.5
+    b(22) = b(21) + 0.5 '24
+    
+    
+    For i = 0 To 30
+        c(i) = a(i) * 567
+        d(i) = b(i) * 567
+    Next i
+    
+        
+    
+    e(0) = a(1)
+    e(1) = a(14)
+    e(2) = a(18)
+    e(3) = a(22)
+    f(2) = b(0) - 0.5
+    f(1) = f(2) - 0.7
+    f(0) = f(1) - 0.7
+    
+    For i = 0 To 4
+        g(i) = e(i) * 567
+        h(i) = f(i) * 567
+    Next i
+
+End Function
+
+
+
+Private Function selval(a As Single, x As Single, y As Single)
+
+
+End Function
+
+
+Private Function PRTtable(y As Single) 'x As Single, y As Single) ', DT As Date, Abstract As String) '2.5,3.4
+
+While data(i_prt).num <> 0
+    
+    location (y)
+'------------------------------------------------------------start to print ----------------------------------------------------------
+    Printer.Line (c(0), d(0))-Step(c(23) - c(0), 0)
+    Printer.Line (c(3), d(1))-Step(c(12) - c(3), 0) '借下横
+    For i = 2 To 9
+        Printer.Line (c(0), d(i))-Step(c(23) - c(0), 0)
+    Next i
+    Printer.Line (c(13), d(1))-Step(c(22) - c(13), 0) '贷下横
+    
+    '列
+    '科目块
+    For i = 0 To 3
+        Printer.Line (c(i), d(0))-Step(0, d(9) - d(0))
+    Next i
+    '借下线
+    For i = 4 To 11
+        Printer.Line (c(i), d(1))-Step(0, d(9) - d(1))
+    Next i
+    
+    Printer.Line (c(12), d(0))-Step(0, d(9) - d(0))
+    Printer.Line (c(13), d(0))-Step(0, d(9) - d(0))
+    
+    
+    '贷下线
+    
+    For i = 14 To 21
+        Printer.Line (c(i), d(1))-Step(0, d(9) - d(1))
+    Next i
+    Printer.Line (c(22), d(0))-Step(0, d(9) - d(0))
+    Printer.Line (c(23), d(0))-Step(0, d(9) - d(0))
+    
+    
+    
+    Printer.CurrentX = ((c(1) + c(0)) / 2) - 400
+    Printer.CurrentY = ((d(2) + d(0)) / 2) - 100
+    Printer.FontSize = 10
+    Printer.Print "摘    要"
+    
+    
+    Printer.CurrentX = ((c(2) + c(1)) / 2) - 400
+    Printer.CurrentY = ((d(2) + d(0)) / 2) - 100
+    Printer.FontSize = 10
+    Printer.Print "总账科目"
+    
+    
+    Printer.CurrentX = ((c(3) + c(2)) / 2) - 700
+    Printer.CurrentY = ((d(2) + d(0)) / 2) - 100
+    Printer.FontSize = 10
+    Printer.Print "二级或明细科目"
+    
+    Printer.CurrentX = ((c(12) + c(3)) / 2) - 200
+    Printer.CurrentY = ((d(1) + d(0)) / 2) - 90
+    Printer.FontSize = 10
+    Printer.Print "借  方"
+    
+    
+    Printer.CurrentX = ((c(22) + c(13)) / 2) - 200
+    Printer.CurrentY = ((d(1) + d(0)) / 2) - 90
+    Printer.FontSize = 10
+    Printer.Print "贷  方"
+    
+    Dim units As String
+    units = "百十万千百十元角分"
+    For i = 1 To 9
+        Printer.CurrentX = ((c(3 + i) + c(2 + i)) / 2) - 80
+        Printer.CurrentY = ((d(2) + d(1)) / 2) - 80
+        Printer.FontSize = 8
+        Printer.Print (Mid(units, i, 1))
+    Next i
+    Printer.CurrentX = ((c(13) + c(12)) / 2) - 150
+    Printer.CurrentY = ((d(2) + d(0)) / 2) - 80
+    Printer.FontSize = 15
+    Printer.Print "√"
+    
+    For i = 1 To 9
+        Printer.CurrentX = ((c(12 + i) + c(13 + i)) / 2) - 80
+        Printer.CurrentY = ((d(2) + d(1)) / 2) - 80
+        Printer.FontSize = 8
+        Printer.Print (Mid(units, i, 1))
+    Next i
+    Printer.CurrentX = ((c(23) + c(22)) / 2) - 150
+    Printer.CurrentY = ((d(2) + d(0)) / 2) - 80
+    Printer.FontSize = 15
+    Printer.Print "√"
+    
+    Dim rght As String
+    rght = "附单据及附件"
+    For i = 1 To 6
+        Printer.CurrentX = c(23) + 100
+        Printer.CurrentY = d(i - 1)
+        Printer.FontSize = 10
+        Printer.Print (Mid(rght, i, 1))
+    Next i
+    
+    Printer.CurrentX = c(23) + 100
+    Printer.CurrentY = d(7)
+    Printer.FontSize = 10
+    Printer.Print ("张")
+    
+    
+    Printer.CurrentX = ((c(1) + c(0)) / 2) - 400
+    Printer.CurrentY = ((d(8) + d(9)) / 2) - 100
+    Printer.FontSize = 10
+    Printer.Print "合    计"
+      
+    Printer.CurrentX = ((c(1) + c(0)) / 2) - 400
+    Printer.CurrentY = d(9) + 70
+    Printer.FontSize = 8
+    Printer.Print "会计"
+    
+    Printer.CurrentX = c(1) + 70
+    Printer.CurrentY = d(9) + 70
+    Printer.FontSize = 8
+    Printer.Print "记账"
+    
+    Printer.CurrentX = ((c(2) + c(3)) / 2) - 400
+    Printer.CurrentY = d(9) + 70
+    Printer.FontSize = 8
+    Printer.Print "复核"
+    
+    
+    Printer.CurrentX = c(7)
+    Printer.CurrentY = d(9) + 70
+    Printer.FontSize = 8
+    Printer.Print "制表"
+'------------------------------print head------------------------------
+    
+    '总号
+    Printer.Line (g(1), h(0))-Step(g(3) - g(1), 0)
+    Printer.Line (g(1), h(1))-Step(g(3) - g(1), 0)
+    Printer.Line (g(1), h(2))-Step(g(3) - g(1), 0)
+    
+    Printer.Line (g(1), h(0))-Step(0, h(2) - h(0))
+    Printer.Line (g(2), h(0))-Step(0, h(2) - h(0))
+    Printer.Line (g(3), h(0))-Step(0, h(2) - h(0))
+    
+    
+    Printer.CurrentX = ((g(1) + g(2)) / 2) - 200
+    Printer.CurrentY = ((h(0) + h(1)) / 2) - 100
+    Printer.FontSize = 12
+    Printer.Print "总号"
+    
+    Printer.CurrentX = ((g(1) + g(2)) / 2) - 200
+    Printer.CurrentY = ((h(1) + h(2)) / 2) - 100
+    Printer.FontSize = 12
+    Printer.Print "分号"
+    
+    Printer.CurrentX = g(0) + 200
+    Printer.CurrentY = h(0) + 100
+    Printer.FontSize = 15
+    Printer.Print "记   账   凭   证"
+    
+    Printer.CurrentX = g(0) + 500
+    Printer.CurrentY = h(1) + 100
+    Printer.FontSize = 10
+    Printer.Print Year(data(0).Date) & " 年 " & Month(data(0).Date) & " 月 " & Day(data(0).Date) & " 日"
+    
+    
+    'Printer.CurrentX = g(0) + 500
+    'Printer.CurrentY = h(1) + 100
+    'Printer.FontSize = 10
+    'Printer.Print "2019 年 2 月 25 日"
+    
+    'i_prt_words = 2
+    PRTwords (2) 'change i_prt-->data(i_prt).num
+    
+    num = num + 1
+    If nextpage <> 3 Then
+        Print (nextpage)
+        nextpage = nextpage + 1
+        PRTtable (y + 9.9) 'next table on same page
+    Else
+        Printer.NewPage
+        Print (nextpage)
+        nextpage = 1
+        
+        PRTtable (3.4)
+    End If
+Wend
+End Function
+    
+    
+Private Function PRTwords(i_prt_words As Single) 'i location
+'-----------------------------------------
+While data(i_prt).num = num
+    Printer.CurrentX = c(0) + 100
+    Printer.CurrentY = ((d(i_prt_words + 1) + d(i_prt_words)) / 2) - 100
+    Printer.FontSize = 8
+    Printer.Print data(i_prt).Abstract
+    
+    
+    Printer.CurrentX = c(1) + 100
+    Printer.CurrentY = ((d(i_prt_words + 1) + d(i_prt_words)) / 2) - 100
+    Printer.FontSize = 8
+    Printer.Print data(i_prt).Ledger
+    
+    
+    Printer.CurrentX = c(2) + 100
+    Printer.CurrentY = ((d(i_prt_words + 1) + d(i_prt_words)) / 2) - 100
+    Printer.FontSize = 8
+    Printer.Print data(i_prt).Detail
+    ''''''
+    
+    
+    Printer.CurrentX = ((c(12) + c(3)) / 2) - 200
+    Printer.CurrentY = ((d(1) + d(0)) / 2) - 90
+    Printer.FontSize = 10
+    Printer.Print "借  方"
+    
+    
+    Printer.CurrentX = ((c(22) + c(13)) / 2) - 200
+    Printer.CurrentY = ((d(1) + d(0)) / 2) - 90
+    Printer.FontSize = 10
+    Printer.Print "贷  方"
+    
+    'selval(data.Debit,c(9),
+    
+    
+    'data(i).PrintOrNot = True
+
+    i_prt = i_prt + 1
+    PRTwords (i_prt_words + 1)
+        
+
+
+Wend
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    'Print ("g(0)=" & g(0))
+    'Print ("d(9)=" & d(9))
+    'Print ("g0-d9" & g(0) - d(9))
+    
+    'Dim paper_length As Single, blank As Single, sheetWithBlank As Single, sheet As Single
+    
+    
+    'Dim secondSheet As Single
+    'sheet = d(9) - g(0)
+    'paper_length = 29.7 * 567
+    'blank = paper_length / 3 - (sheet)
+    
+    'sheetWithBlank = blank + sheet
+    
+    'secondSheet = 3.4 + sheetWithBlank / 567
+    'Print ("blankWithSheet = " & sheetWithBlank)
+    'Print ("secondSheet=" & secondSheet)
+    
+    ''        Printer.EndDoc
+    
+
+    
+
+
+
+End Function
+    
+    
+    
+    
+    'x0 = 1.9 * 567
+    'y0 = (0.65 + 66.75 / 72 * 2.54) * 567
+    'deltax0 = 63.95 * 0.254 * 567
+    
+    'Print deltax0
+    'a = 44.39 * 567
+    'b = y0 + 14.25 / 72 * 2.54 * 567
+    
+    'printer.Line (x0, y0)-Step(deltax0, 0)
+    'printer.Line (a, b)-Step(deltax0, 0)
+    
+    'printer.ScaleX(
+    'printer.Circle (1000, 1600), 800, vbRed
+    'printer.CurrentX = 450
+   ' printer.CurrentY = 450
+    'printer.Print "VB编程很有趣！"
+    'printer.EndDoc
+
+
+Private Sub Combo1_lostfocus()
+    tblnm = LTrim(Combo1.Text)
+    'Text2.SetFocus
+    'Me.Controls("Text" & ).SetFocus
+    
+    
+    'Dim i As Integer
+    Dim conprt As New ADODB.Connection
+    Dim rsprt As New ADODB.Recordset, rs2 As New ADODB.Recordset
+    
+    
+    tblnm = Combo1.Text
+    
+    conprt.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'conprt.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    conprt.Open
+    
+    'rs2.CursorType = adOpenStatic
+    'rs2.Open "select * from list where Tablelist='" & List1.Text & List2.Text & "'", conn 'https://bbs.csdn.net/topics/39386
+    'If Not rs2.RecordCount = 1 Then
+    'MsgBox "没有当月记录"
+    'Else
+    rsprt.CursorType = adOpenStatic
+    'Print ("select * from " & tblnm)
+    rsprt.Open "select * from " & tblnm, conprt
+    'Print rsprt.RecordCount
+    i = 0
+    If rsprt.RecordCount = 0 Then
+        MsgBox "没有当月记录"
+    Else
+        rsprt.MoveFirst
+        While Not rsprt.EOF
+            data(i).Date = rsprt.Fields("DT").Value
+            data(i).Abstract = rsprt.Fields("Abstract").Value
+            data(i).Ledger = rsprt.Fields("Ledger").Value
+            data(i).Detail = rsprt.Fields("Detail").Value
+            data(i).Debit = rsprt.Fields("Debit").Value
+            data(i).credit = rsprt.Fields("Credit").Value
+            data(i).num = rsprt.Fields("num").Value
+            rsprt.MoveNext
+            i = i + 1
+        Wend
+    End If
+    num = 1
+    
+    rsprt.Close
+    conprt.Close
+
+
+End Sub
+
+
+
+Private Sub Command1_Click()
+Call PRTtable(3.4)
+'Call PRTtable(13.3)
+'Call PRTtable(23.2)
+        Printer.EndDoc
+
+End Sub
+
+Private Sub command2_click()
+    If tblnm = "" Then
+            MsgBox ("请选择单位！")
+    Else
+        Dim i As Integer
+        Dim conprt As New ADODB.Connection
+        Dim rsprt As New ADODB.Recordset, rs2 As New ADODB.Recordset
+        
+        Dim data(1000) As Transaction
+        
+        tblnm = Combo1.Text
+        
+        conprt.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+        'conprt.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+        conprt.Open
+        
+        'rs2.CursorType = adOpenStatic
+        'rs2.Open "select * from list where Tablelist='" & List1.Text & List2.Text & "'", conn 'https://bbs.csdn.net/topics/39386
+        'If Not rs2.RecordCount = 1 Then
+        'MsgBox "没有当月记录"
+        'Else
+        rsprt.CursorType = adOpenStatic
+        'Print ("select * from " & tblnm)
+        rsprt.Open "select * from " & tblnm, conprt
+        'Print rsprt.RecordCount
+        i = 0
+        If rsprt.RecordCount = 0 Then
+            MsgBox "没有当月记录"
+        Else
+            rsprt.MoveFirst
+            While Not rsprt.EOF
+                data(i).Date = rsprt.Fields("DT").Value
+                data(i).Abstract = rsprt.Fields("Abstract").Value
+                data(i).Ledger = rsprt.Fields("Ledger").Value
+                data(i).Detail = rsprt.Fields("Detail").Value
+                data(i).Debit = rsprt.Fields("Debit").Value
+                data(i).credit = rsprt.Fields("Credit").Value
+                data(i).num = rsprt.Fields("num").Value
+                rsprt.MoveNext
+                i = i + 1
+            Wend
+            
+            Print (Year(data(0).Date))
+        
+        
+        
+        
+        
+        
+        
+        
+        End If
+    
+        rsprt.Close
+        conprt.Close
+        
+        'End If
+    End If
+
+End Sub
+
+
+Private Function seperatenumber(number As Single) As Single()
+    Dim credit(0 To 8) As Single
+
+    credit(0) = 100 * number \ 10 ^ (8)
+    For i = 1 To 8
+        credit(i) = (100 * number Mod (10 ^ (9 - i))) \ (10 ^ (8 - i))
+    Next i
+    seperatenumber = credit
+End Function
+
+
+
+Private Sub Command3_Click() '拆数字
+
+Dim contry As New ADODB.Connection
+Dim rstry As New ADODB.Recordset
+Dim credit(10) As Single
+    contry.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'contry.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    contry.Open
+    rstry.Open "select * from 201912019年1月31日", contry
+rstry.MoveFirst
+While Not rstry.EOF
+
+    Print (rstry.Fields("Credit").Value & " lenth= " & Len(rstry.Fields("Credit").Value))
+    credit(0) = 100 * rstry.Fields("Credit").Value \ 10 ^ (8)
+    Print (credit(0))
+    
+    'credit(1) = rstry.Fields("Credit").Value \ 100000 - credit(0)
+    For i = 1 To 8
+        credit(i) = (100 * rstry.Fields("Credit").Value Mod (10 ^ (9 - i))) \ (10 ^ (8 - i))
+        Print
+        Print ("i    " & credit(i))
+        'Print (1 / (10 ^ (-1)))
+    Next i
+    rstry.MoveNext
+Wend
+    rstry.Close
+    contry.Close
+End Sub
+
+
+Private Sub Command4_Click()
+Dim credit_print
+Dim len_credit_print As Single
+Dim i As Integer
+credit_print = seperatenumber(123)
+len_credit_print = UBound(credit_print)
+
+
+For i = 0 To len_credit_print
+Print (credit_print(i))
+Next i
+End Sub
+
+Private Sub Form_Load()
+    Dim concomb As New ADODB.Connection 'connection for combo1
+    Dim rscomb As New ADODB.Recordset
+    
+    
+    concomb.ConnectionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    'concomb.ConnectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & App.Path & "\Counting.mdb;Persist Security Info=False"
+    concomb.Open
+    
+    rscomb.CursorType = adOpenStatic
+    Print ("select * from " & tblnm)
+    rscomb.Open "select * from list", concomb
+    If rscomb.RecordCount = 0 Then
+        MsgBox ("没有记录可以打印") '有无数据表
+    Else
+        rscomb.MoveFirst
+        While Not rscomb.EOF
+           Combo1.AddItem (rscomb.Fields("Tablelist").Value)
+           rscomb.MoveNext
+        Wend
+    End If
+    
+    rscomb.Close
+    concomb.Close
+    
+    Erase data
+    i_prt = 0
+    nextpage = 1
+'------------------------------get data--------------------
+
+
+End Sub
